@@ -1,53 +1,70 @@
 $(document).ready(function(){
     
     // demo servers
-    $server1 = 'process.php'; // regular
-    $server2 = 'process.php'; // improved
+    var $server1 = 'http://51.15.40.128:8000/image/'; // regular server
+    var $server2 = 'image/'; // improved server
     
-    function sendImage(address, element) {
+    function sendImage(data, address, result) {
         
+        /* // send form
         var $input = $("#demoInputFile");
         var fd = new FormData();
-
         fd.append('demofile', $input.prop('files')[0]);
-
-        var startTime = new Date();
+        data = fd; // */
+        
+        var startTime, endTime;
         
         $.ajax({
-            url: address,
-            data: fd,
-            processData: false,
-            contentType: false,
-            type: 'POST',
-            success: function(data){
-                var endTime = new Date();
+            type: 'POST', url: address, data: data,
+            processData: false, contentType: false,
+            beforeSend: function(){ startTime = new Date(); },
+            success: function(response){
+                endTime = new Date();
                 latency = endTime - startTime;
-                $(element).html('<div class="demo-latency">'+latency+' ms</div>');
-                $items = $.parseJSON(data);
-                $items.forEach(function(item, i) {
-                    $(element).append('<img class="channel-'+i+'" src="'+item+'">');
+                $(result).html('<div class="demo-latency">'+latency+' ms</div>');
+                
+                $items = $.parseJSON(response);
+                $.each($items, function(index, value) {
+                    code = '<img class="channel-'+index+'" src="'+address+value+'">'
+                    $(result).append(code);
                 });
-                // $(element).html(data);
+            },
+            error: function(response){
+                endTime = new Date();
+                latency = endTime - startTime;
+                $(result).html('<div class="demo-latency">'+latency+' ms</div>');
+                
+                code = '<p>Error: '+response.status+'</p>'
+                $(result).append(code);
             }
         });
         
     }
     
-    $("#demoForm").on('submit', function(ev){
-        ev.preventDefault();
-        sendImage($server1, "#demoResult1");
-        sendImage($server2, "#demoResult2");
-        $('.demo-results').slideDown(500);
-    });
-    
-    $('a[href^="#"]').on('click', function(event) {
+    $("#demoForm").on('submit', function(event){
         event.preventDefault();
-        targetedScroll($(this).attr('href').substr(1));
+        
+        const reader = new FileReader();
+        
+        file = $("#demoInputFile").prop('files')[0];
+        reader.onload = function(e){
+            $content = e.target.result;
+            sendImage($content, $server1, "#demoResult1");
+            sendImage($content, $server2, "#demoResult2");
+            $('.demo-results').slideDown(500);
+        };
+        
+        reader.readAsBinaryString(file);
     });
 
+    // scroll to #id
     function targetedScroll(id) {
         var scrollTop = id ? $('#' + id).offset().top : 0;
         $('body,html').animate({ scrollTop: scrollTop }, 500);
     }
+    $('a[href^="#"]').on('click', function(event) {
+        event.preventDefault();
+        targetedScroll($(this).attr('href').substr(1));
+    });
     
 });
