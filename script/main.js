@@ -23,7 +23,9 @@ $(document).ready(function(){
                 latency = endTime - startTime;
                 $(result).html('<div class="demo-latency">'+latency+' ms</div>');
                 
-                $items = $.parseJSON(response);
+                if($.isPlainObject(response)){ $items = response; }
+                else {$items = $.parseJSON(response); }
+                
                 $.each($items, function(index, value) {
                     code = '<img class="channel-'+index+'" src="'+address+value+'">'
                     $(result).append(code);
@@ -47,8 +49,9 @@ $(document).ready(function(){
         const reader = new FileReader();
         
         file = $("#demoInputFile").prop('files')[0];
-        reader.onload = function(e){
-            $content = '{"image":"'+e.target.result+'"}';
+        reader.onloadend = function(){
+            data = this.result.split(',')[1]
+            $content = '{"image":"'+data+'"}';
             sendImage($content, $server1, "#demoResult1");
             sendImage($content, $server2, "#demoResult2");
             $('.demo-results').slideDown(500);
