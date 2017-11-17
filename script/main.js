@@ -48,13 +48,13 @@ $(document).ready(function(){
         
         file = $("#demoInputFile").prop('files')[0];
         reader.onload = function(e){
-            $content = e.target.result;
+            $content = '{"image":"'+e.target.result+'"}';
             sendImage($content, $server1, "#demoResult1");
             sendImage($content, $server2, "#demoResult2");
             $('.demo-results').slideDown(500);
         };
         
-        reader.readAsBinaryString(file);
+        reader.readAsDataURL(file); // reader.readAsBinaryString(file);
     });
 
     // scroll to #id
