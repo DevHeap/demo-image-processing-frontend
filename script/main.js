@@ -27,7 +27,9 @@ $(document).ready(function(){
                 else {$items = $.parseJSON(response); }
                 
                 $.each($items, function(index, value) {
-                    code = '<img class="channel-'+index+'" src="'+address+value+'">'
+                    code = '<div class="demo-cannel">'+
+                    '<img class="channel-'+index+'" src="'+address+value+'">'+
+                    '</div>';
                     $(result).append(code);
                 });
             },
